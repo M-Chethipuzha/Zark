@@ -1,0 +1,25 @@
+# Compiled binary
+zark.exe
+/zark
+
+# Go build cache
+/vendor/
+*.o
+*.a
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE/Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Log files
+*.log
+
+# Environment files
+.env
