@@ -42,7 +42,8 @@ func setupTestRepo(t *testing.T) (*Repository, string, func()) {
 		t.Fatalf("Failed to add files for initial commit: %v", err)
 	}
 
-	storage := NewStorage(repo.ObjectsDir)
+	// FIX: Pass the entire repo object to NewStorage.
+	storage := NewStorage(repo)
 	index, _ := LoadIndex(repo.IndexPath)
 	var treeEntries []TreeEntry
 	for _, entry := range index.Entries {
@@ -115,9 +116,8 @@ func TestBranching(t *testing.T) {
 		buf.ReadFrom(r)
 		output := buf.String()
 
-		// FIX: Make test robust against ordering and color codes.
 		re := regexp.MustCompile(`\x1b\[[0-9;]*m`)
-		cleanOutput := re.ReplaceAllString(output, "") // Strip ANSI color codes
+		cleanOutput := re.ReplaceAllString(output, "")
 
 		lines := strings.Split(strings.TrimSpace(cleanOutput), "\n")
 		foundCurrent := false

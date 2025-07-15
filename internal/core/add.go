@@ -19,7 +19,8 @@ func AddFiles(repo *Repository, paths []string) error {
 		}
 	}
 
-	storage := NewStorage(repo.ObjectsDir)
+	// FIX: Pass the entire repo object to NewStorage.
+	storage := NewStorage(repo)
 
 	for _, path := range paths {
 		// Walk the file path. If it's a file, it will be visited once.
@@ -39,7 +40,6 @@ func AddFiles(repo *Repository, paths []string) error {
 				return nil
 			}
 
-			// FIX: Convert the path from the walker to an absolute path before using it.
 			absPath, err := filepath.Abs(currentPath)
 			if err != nil {
 				return fmt.Errorf("failed to get absolute path for %s: %w", currentPath, err)

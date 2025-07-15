@@ -81,12 +81,15 @@ func NewCommit(treeHash, parent, author, email, message string) *Commit {
 		Timestamp: time.Now(),
 		Message:   message,
 	}
-
-	data, _ := json.Marshal(commit)
-	hash := sha256.Sum256(data)
-	commit.hash = hex.EncodeToString(hash[:])
-
+	commit.rehash() // Calculate initial hash
 	return commit
+}
+
+// rehash recalculates the commit's hash. This is needed after modification (e.g., signing).
+func (c *Commit) rehash() {
+	data, _ := json.Marshal(c)
+	hash := sha256.Sum256(data)
+	c.hash = hex.EncodeToString(hash[:])
 }
 
 func (c *Commit) Hash() string { return c.hash }

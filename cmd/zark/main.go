@@ -22,6 +22,9 @@ func main() {
 	rootCmd.AddCommand(commands.StatusCmd())
 	rootCmd.AddCommand(commands.CheckoutCmd())
 	rootCmd.AddCommand(commands.BranchCmd())
+	rootCmd.AddCommand(commands.GCCmd())
+	rootCmd.AddCommand(commands.SearchCmd())
+	rootCmd.AddCommand(commands.LFSCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

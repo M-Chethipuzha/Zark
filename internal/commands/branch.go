@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"zark/internal/core"
@@ -10,10 +12,55 @@ import (
 
 // BranchCmd creates the `zark branch` command.
 func BranchCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "branch [branch-name]",
+	cmd := &cobra.Command{
+		Use:   "branch",
 		Short: "List, create, or delete branches",
-		Long:  "If no branch name is provided, it lists all local branches. Otherwise, it creates a new branch pointing to the current HEAD.",
+	}
+
+	cmd.AddCommand(branchCreateCmd())
+	cmd.AddCommand(branchListCmd())
+
+	return cmd
+}
+
+func branchCreateCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "create [name]",
+		Short: "Create a new branch",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var branchName string
+			if len(args) > 0 {
+				branchName = args[0]
+			} else {
+				reader := bufio.NewReader(os.Stdin)
+				fmt.Print("Enter branch name: ")
+				name, _ := reader.ReadString('\n')
+				branchName = strings.TrimSpace(name)
+			}
+
+			if branchName == "" {
+				return fmt.Errorf("branch name cannot be empty")
+			}
+
+			cwd, err := os.Getwd()
+			if err != nil {
+				return fmt.Errorf("failed to get current directory: %w", err)
+			}
+
+			repo := core.NewRepository(cwd)
+			if !repo.Exists() {
+				return fmt.Errorf("not a zark repository")
+			}
+
+			return core.CreateBranch(repo, branchName)
+		},
+	}
+}
+
+func branchListCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List all branches",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
@@ -22,15 +69,10 @@ func BranchCmd() *cobra.Command {
 
 			repo := core.NewRepository(cwd)
 			if !repo.Exists() {
-				return fmt.Errorf("not a zark repository (or any of the parent directories)")
+				return fmt.Errorf("not a zark repository")
 			}
 
-			// If no arguments, list branches. Otherwise, create one.
-			if len(args) == 0 {
-				return core.ListBranches(repo)
-			} else {
-				return core.CreateBranch(repo, args[0])
-			}
+			return core.ListBranches(repo)
 		},
 	}
 }
